@@ -97,85 +97,86 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
 
     // ── Supabase mode ─────────────────────────────────────────────────────────
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db = supabase as any
     return {
       isGuest: false,
 
       async insertSerie(data) {
-        const { error } = await supabase.from('series').insert(data)
+        const { error } = await db.from('series').insert(data)
         if (error) throw new Error(error.message)
       },
       async updateSerie(id, data) {
-        const { error } = await supabase.from('series').update(data).eq('id', id)
+        const { error } = await db.from('series').update(data).eq('id', id)
         if (error) throw new Error(error.message)
       },
       async deleteSerieCascade(serieId, characterIds) {
         if (characterIds.length) {
-          await supabase.from('character_groups').delete().in('character_id', characterIds)
-          await supabase.from('characters').delete().eq('serie_id', serieId)
+          await db.from('character_groups').delete().in('character_id', characterIds)
+          await db.from('characters').delete().eq('serie_id', serieId)
         }
-        await supabase.from('groups').delete().eq('serie_id', serieId)
-        await supabase.from('series').delete().eq('id', serieId)
+        await db.from('groups').delete().eq('serie_id', serieId)
+        await db.from('series').delete().eq('id', serieId)
       },
       async updateWatchStatus(id, status) {
-        await supabase.from('series').update({ watch_status: status }).eq('id', id)
+        await db.from('series').update({ watch_status: status }).eq('id', id)
       },
 
       async insertCharacter(data) {
-        const { data: d, error } = await supabase.from('characters').insert(data).select().single()
+        const { data: d, error } = await db.from('characters').insert(data).select().single()
         if (error) throw new Error(error.message)
         return d as Character
       },
       async updateCharacter(id, data) {
-        const { error } = await supabase.from('characters').update(data).eq('id', id)
+        const { error } = await db.from('characters').update(data).eq('id', id)
         if (error) throw new Error(error.message)
       },
       async deleteCharacterCascade(characterId) {
-        await supabase.from('character_groups').delete().eq('character_id', characterId)
-        await supabase.from('characters').delete().eq('id', characterId)
+        await db.from('character_groups').delete().eq('character_id', characterId)
+        await db.from('characters').delete().eq('id', characterId)
       },
 
       async insertGroup(data) {
-        const { error } = await supabase.from('groups').insert(data)
+        const { error } = await db.from('groups').insert(data)
         if (error) throw new Error(error.message)
       },
       async updateGroup(id, data) {
-        const { error } = await supabase.from('groups').update(data).eq('id', id)
+        const { error } = await db.from('groups').update(data).eq('id', id)
         if (error) throw new Error(error.message)
       },
       async deleteGroupCascade(groupId) {
-        await supabase.from('character_groups').delete().eq('group_id', groupId)
-        await supabase.from('groups').delete().eq('id', groupId)
+        await db.from('character_groups').delete().eq('group_id', groupId)
+        await db.from('groups').delete().eq('id', groupId)
       },
 
       async getCharacterGroups(characterId) {
-        const { data } = await supabase.from('character_groups').select('groups(*)').eq('character_id', characterId)
-        return (data ?? []).map(d => (d as unknown as { groups: Group }).groups).filter(Boolean)
+        const { data } = await db.from('character_groups').select('groups(*)').eq('character_id', characterId)
+        return ((data ?? []) as { groups: Group }[]).map(d => d.groups).filter(Boolean) as Group[]
       },
       async getCharacterGroupIds(characterId) {
-        const { data } = await supabase.from('character_groups').select('group_id').eq('character_id', characterId)
-        return (data ?? []).map(d => d.group_id)
+        const { data } = await db.from('character_groups').select('group_id').eq('character_id', characterId)
+        return ((data ?? []) as { group_id: string }[]).map(d => d.group_id)
       },
       async getGroupsForSerie(serieId) {
-        const { data } = await supabase.from('groups').select('*').eq('serie_id', serieId).order('name', { ascending: true })
+        const { data } = await db.from('groups').select('*').eq('serie_id', serieId).order('name', { ascending: true })
         return (data as Group[]) ?? []
       },
       async getGroupCharacters(groupId) {
-        const { data } = await supabase.from('character_groups').select('characters(*)').eq('group_id', groupId)
-        return (data ?? []).map(d => (d as unknown as { characters: Character }).characters).filter(Boolean)
+        const { data } = await db.from('character_groups').select('characters(*)').eq('group_id', groupId)
+        return ((data ?? []) as { characters: Character }[]).map(d => d.characters).filter(Boolean) as Character[]
       },
       async setCharacterGroups(characterId, groupIds) {
-        const { error: delErr } = await supabase.from('character_groups').delete().eq('character_id', characterId)
+        const { error: delErr } = await db.from('character_groups').delete().eq('character_id', characterId)
         if (delErr) throw new Error(delErr.message)
         if (groupIds.length) {
-          const { error: insErr } = await supabase.from('character_groups').insert(
-            groupIds.map(gid => ({ character_id: characterId, group_id: gid })),
-          )
+          const rows = groupIds.map(gid => ({ character_id: characterId, group_id: gid }))
+          const { error: insErr } = await db.from('character_groups').insert(rows)
           if (insErr) throw new Error(insErr.message)
         }
       },
 
       async toggleFavorite(table, id, value) {
-        await supabase.from(table).update({ favorite: value }).eq('id', id)
+        await db.from(table).update({ favorite: value }).eq('id', id)
       },
     }
   }, [isGuest])

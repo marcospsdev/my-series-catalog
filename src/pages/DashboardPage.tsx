@@ -35,7 +35,6 @@ export default function DashboardPage() {
     { label: 'Não assistidos',  value: unwatched.length,  icon: 'mdi:eye-off-outline',       color: 'text-zinc-400',    bg: 'bg-zinc-500/10 border-zinc-500/20' },
   ]
 
-  const totalPercent = series.length > 0 ? 100 : 0
   const watchedPct  = series.length > 0 ? Math.round((completed.length / series.length) * 100) : 0
   const watchingPct = series.length > 0 ? Math.round((watching.length / series.length) * 100) : 0
 

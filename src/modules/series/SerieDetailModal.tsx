@@ -46,7 +46,8 @@ export default function SerieDetailModal({ serie, onClose, onCharacterClick }: P
     if (!serie || updatingStatus) return
     setUpdatingStatus(true)
     setWatchStatus(newStatus)
-    await supabase.from('series').update({ watch_status: newStatus }).eq('id', serie.id)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).from('series').update({ watch_status: newStatus }).eq('id', serie.id)
     setUpdatingStatus(false)
   }
 

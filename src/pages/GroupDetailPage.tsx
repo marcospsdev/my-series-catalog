@@ -49,12 +49,12 @@ export default function GroupDetailPage() {
         supabase.from('groups').select('*').eq('id', id).single(),
         supabase.from('series').select('*').order('title', { ascending: true }),
       ]).then(([{ data: g }, { data: sr }]) => {
-        const grp = g as Group
+        const grp = (g ?? null) as Group | null
         setGroup(grp)
         setSeries((sr as Serie[]) ?? [])
         if (grp?.serie_id) {
           supabase.from('series').select('*').eq('id', grp.serie_id).single()
-            .then(({ data: s }) => setSerie(s as Serie))
+            .then(({ data: s }) => { if (s) setSerie(s as Serie) })
         }
         db.getGroupCharacters(id).then(setCharacters)
         setLoading(false)

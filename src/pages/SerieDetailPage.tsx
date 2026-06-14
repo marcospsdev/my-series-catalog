@@ -60,7 +60,7 @@ export default function SerieDetailPage() {
         supabase.from('characters').select('*').eq('serie_id', id).order('name', { ascending: true }),
         supabase.from('groups').select('*').eq('serie_id', id).order('name', { ascending: true }),
       ]).then(([{ data: s }, { data: c }, { data: g }]) => {
-        setSerie(s as Serie)
+        setSerie((s ?? null) as Serie | null)
         setCharacters((c as Character[]) ?? [])
         setGroups((g as Group[]) ?? [])
         setLoading(false)
