@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import { useAuth } from '../contexts/AuthContext'
+import { isSupabaseConfigured } from '../lib/supabase'
 
 export default function LoginPage() {
   const { signIn, enterGuestMode } = useAuth()
@@ -41,6 +42,13 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+          {!isSupabaseConfigured && (
+            <div className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+              <Icon icon="mdi:alert-circle-outline" className="w-4 h-4 flex-shrink-0" />
+              Login indisponível: Supabase não configurado. Use o modo convidado abaixo.
+            </div>
+          )}
+
           {error && (
             <div className="bg-red-500/15 border border-red-500/30 text-red-300 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
               <Icon icon="mdi:alert-circle-outline" className="w-4 h-4 flex-shrink-0" />
@@ -58,6 +66,7 @@ export default function LoginPage() {
                 placeholder="seu@email.com"
                 className={INPUT}
                 autoComplete="email"
+                disabled={!isSupabaseConfigured}
               />
             </div>
 
@@ -71,6 +80,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   className={`${INPUT} pr-11`}
                   autoComplete="current-password"
+                  disabled={!isSupabaseConfigured}
                 />
                 <button
                   type="button"
@@ -84,7 +94,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !isSupabaseConfigured}
               className="w-full bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white font-medium py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2"
             >
               {loading ? (

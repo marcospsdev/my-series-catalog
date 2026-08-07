@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
 interface AuthContextValue {
@@ -23,6 +23,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setIsGuest(localStorage.getItem('guest_mode') === '1')
+      setLoading(false)
+      return
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       const sessionUser = data.session?.user ?? null
       setUser(sessionUser)
@@ -41,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   async function signIn(email: string, password: string): Promise<string | null> {
+    if (!isSupabaseConfigured) return 'Login indisponível: Supabase não configurado. Use o modo convidado.'
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) return error.message
     localStorage.removeItem('guest_mode')
@@ -49,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
-    await supabase.auth.signOut()
+    if (isSupabaseConfigured) await supabase.auth.signOut()
     setUser(null)
     setIsGuest(false)
     localStorage.removeItem('guest_mode')
