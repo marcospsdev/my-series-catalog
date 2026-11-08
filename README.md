@@ -6,6 +6,8 @@ Organize séries e animes, personagens e grupos — com modo convidado que funci
   <img src="docs/preview.webp" alt="Dashboard com progresso do catálogo e séries em andamento" width="900">
 </p>
 
+> **Demo:** https://my-series-catalog.vercel.app
+
 ---
 
 ## Sumário
@@ -172,6 +174,8 @@ Baseie-se no `.env.example`. Nunca commite o `.env.local` nem arquivos com valor
 ---
 
 ## Deploy
+
+Versão publicada: https://my-series-catalog.vercel.app
 
 1. Importe o repositório na [Vercel](https://vercel.com) (o Vite é detectado automaticamente).
 2. Build: `npm run build` · saída: `dist`.
